@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Práctica Docente IV · Residencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1209;
+    --cream: #f5f0e8;
+    --warm: #f0e6d0;
+    --accent: #c8601a;
+    --accent2: #2d6a4f;
+    --accent3: #e8b84b;
+    --muted: #7a6e5f;
+    --card: #faf6ef;
+    --border: #d8cdb8;
+    --shadow: rgba(26,18,9,0.12);
+    --user-bubble: #2d6a4f;
+    --bot-bubble: #faf6ef;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Fondo con textura de papel */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(200,96,26,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(45,106,79,0.06) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Ccircle cx='1' cy='1' r='0.5' fill='%23b8a98a' opacity='0.3'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--ink);
+    color: var(--cream);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    box-shadow: 0 2px 20px var(--shadow);
+  }
+
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .header-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  .header-text span {
+    font-size: 0.7rem;
+    color: var(--accent3);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .header-tabs {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tab-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: #a09080;
+    letter-spacing: 0.02em;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: white;
+  }
+
+  .tab-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.08);
+    color: var(--cream);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .app-wrapper {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 24px 16px 0;
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; flex-direction: column; flex: 1; animation: fadeIn 0.3s ease; }
+  .panel.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CHAT PANEL ── */
+  #chat-panel { gap: 0; }
+
+  .chat-intro {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .chat-intro-icon { font-size: 2rem; flex-shrink: 0; }
+
+  .chat-intro-text h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    color: var(--ink);
+  }
+
+  .chat-intro-text p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Quick actions */
+  .quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .quick-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 0.78rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    color: var(--ink);
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .quick-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200,96,26,0.04);
+    transform: translateY(-1px);
+  }
+
+  /* Messages */
+  .messages-area {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 12px;
+    min-height: 280px;
+    max-height: 420px;
+    scroll-behavior: smooth;
+  }
+
+  .messages-area::-webkit-scrollbar { width: 4px; }
+  .messages-area::-webkit-scrollbar-track { background: transparent; }
+  .messages-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    animation: msgIn 0.25s ease;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .msg.bot .msg-avatar { background: var(--ink); color: var(--cream); }
+  .msg.user .msg-avatar { background: var(--user-bubble); color: white; }
+
+  .msg-bubble {
+    max-width: 75%;
+    padding: 11px 15px;
+    border-radius: 16px;
+    font-size: 0.87rem;
+    line-height: 1.6;
+    box-shadow: 0 1px 6px var(--shadow);
+  }
+
+  .msg.bot .msg-bubble {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    color: var(--ink);
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--user-bubble);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg-bubble strong { font-weight: 600; }
+  .msg-bubble ul { padding-left: 18px; margin: 6px 0; }
+  .msg-bubble li { margin-bottom: 3px; }
+  .msg-bubble .tag {
+    display: inline-block;
+    background: rgba(200,96,26,0.12);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 0.74rem;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 12px 16px;
+  }
+
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Input area */
+  .chat-input-area {
+    padding: 16px 0 24px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    position: sticky;
+    bottom: 0;
+    background: var(--cream);
+    background: linear-gradient(transparent, var(--cream) 20%);
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 13px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.87rem;
+    color: var(--ink);
+    resize: none;
+    min-height: 48px;
+    max-height: 120px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.5;
+  }
+
+  .chat-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(200,96,26,0.1);
+  }
+
+  .send-btn {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { background: #b05215; transform: scale(1.04); }
+  .send-btn:active { transform: scale(0.97); }
+  .send-btn:disabled { background: var(--border); cursor: not-allowed; transform: none; }
+
+  /* API Key notice */
+  .api-notice {
+    background: rgba(232,184,75,0.15);
+    border: 1px solid rgba(232,184,75,0.4);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: #7a5a10;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* ── HORARIO PANEL ── */
+  #horario-panel { gap: 16px; }
+
+  .panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .panel-subtitle {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .cuatrimestre-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .cuatrimestre-header {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cuatrimestre-header.c1 { background: linear-gradient(135deg, rgba(200,96,26,0.08), rgba(232,184,75,0.06)); }
+  .cuatrimestre-header.c2 { background: linear-gradient(135deg, rgba(45,106,79,0.08), rgba(45,106,79,0.03)); }
+
+  .cuatri-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+
+  .c1 .cuatri-badge { background: var(--accent); color: white; }
+  .c2 .cuatri-badge { background: var(--accent2); color: white; }
+
+  .cuatrimestre-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .month-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .month-row:last-child { border-bottom: none; }
+  .month-row:hover { background: rgba(200,96,26,0.03); }
+
+  .month-label {
+    padding: 14px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--accent);
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .month-unit {
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+  }
+
+  .month-unit:last-child { border-right: none; }
+
+  .unit-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 500;
+  }
+
+  .u1 { background: rgba(200,96,26,0.12); color: var(--accent); }
+  .u2 { background: rgba(232,184,75,0.2); color: #8a5f00; }
+  .u3 { background: rgba(45,106,79,0.12); color: var(--accent2); }
+  .u4 { background: rgba(26,18,9,0.08); color: var(--ink); }
+
+  .horario-bottom {
+    margin-top: 8px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ── EVALUACIÓN PANEL ── */
+  #eval-panel { gap: 16px; padding-bottom: 32px; }
+
+  .eval-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 600px) { .eval-grid { grid-template-columns: 1fr; } }
+
+  .eval-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .eval-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+
+  .eval-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .eval-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .eval-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .eval-card p, .eval-card li {
+    font-size: 0.81rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .eval-card ul { padding-left: 16px; }
+  .eval-card li { margin-bottom: 4px; }
+
+  .criteria-full {
+    grid-column: 1 / -1;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  .score-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .score-table th {
+    text-align: left;
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .score-table td {
+    padding: 8px 10px;
+    font-size: 0.81rem;
+    border-bottom: 1px solid rgba(216,205,184,0.5);
+    color: var(--ink);
+  }
+
+  .score-table tr:last-child td { border-bottom: none; }
+
+  .badge-ap { background: rgba(45,106,79,0.12); color: var(--accent2); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 500; }
+  .badge-rp { background: rgba(232,184,75,0.2); color: #8a5f00; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 500; }
+  .badge-na { background: rgba(200,96,26,0.12); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 500; }
+
+  .aprobacion-banner {
+    background: linear-gradient(135deg, rgba(45,106,79,0.1), rgba(45,106,79,0.04));
+    border: 1.5px solid rgba(45,106,79,0.25);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .aprobacion-banner-icon { font-size: 2rem; flex-shrink: 0; }
+
+  .aprobacion-banner h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .aprobacion-banner p, .aprobacion-banner li {
+    font-size: 0.81rem;
+    color: #3a5a47;
+    line-height: 1.6;
+  }
+
+  .aprobacion-banner ul { padding-left: 16px; }
+  .aprobacion-banner li { margin-bottom: 4px; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header-tabs .tab-btn { padding: 5px 9px; font-size: 0.72rem; }
+    .header-text h1 { font-size: 0.85rem; }
+    .month-row { grid-template-columns: 80px 1fr; }
+    .month-unit:last-child { display: none; }
+    header { padding: 0 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">
+    <div class="header-icon">📚</div>
+    <div class="header-text">
+      <h1>Práctica Docente IV</h1>
+      <span>Residencia · Profesorado en Tecnologías</span>
+    </div>
+  </div>
+  <nav class="header-tabs">
+    <button class="tab-btn active" onclick="showPanel('chat')">💬 Chat</button>
+    <button class="tab-btn" onclick="showPanel('horario')">📅 Horario</button>
+    <button class="tab-btn" onclick="showPanel('eval')">📋 Evaluación</button>
+  </nav>
+</header>
+
+<div class="app-wrapper">
+
+  <!-- ══════════════ CHAT PANEL ══════════════ -->
+  <section class="panel active" id="chat-panel">
+
+    <div class="api-notice">
+      <span>⚙️</span>
+      <div>
+        <strong>Configuración:</strong> Ingresá tu API Key de Anthropic en <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">config.js</code> para usar el chat con IA. Sin ella, el bot usa respuestas locales integradas.
+      </div>
+    </div>
+
+    <div class="chat-intro">
+      <div class="chat-intro-icon">🎓</div>
+      <div class="chat-intro-text">
+        <h2>Asistente de la Residencia</h2>
+        <p>Consultá sobre las unidades, dispositivos pedagógicos, metodología y contenidos de la Práctica Docente IV · Res. N° 442/15.</p>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="quick-btn" onclick="sendQuick('¿Cuáles son las unidades de la materia?')">📦 Ver unidades</button>
+      <button class="quick-btn" onclick="sendQuick('¿Qué es la pre-residencia?')">🌱 Pre-residencia</button>
+      <button class="quick-btn" onclick="sendQuick('¿Qué dispositivos innovadores se usan?')">🛠️ Dispositivos</button>
+      <button class="quick-btn" onclick="sendQuick('¿Cuáles son los criterios de evaluación?')">📊 Evaluación</button>
+      <button class="quick-btn" onclick="sendQuick('¿Qué es TPACK?')">💡 TPACK</button>
+      <button class="quick-btn" onclick="sendQuick('¿Cuándo se aprueba la materia?')">✅ Aprobación</button>
+    </div>
+
+    <div class="messages-area" id="messages-area">
+      <div class="msg bot">
+        <div class="msg-avatar">🎓</div>
+        <div class="msg-bubble">
+          ¡Hola! Soy el asistente de <strong>Práctica Docente IV</strong>. Puedo ayudarte con información sobre las cuatro unidades, el horario cronológico, los dispositivos pedagógicos y los criterios de evaluación. ¿Qué querés consultar?
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chat-input" placeholder="Hacé tu pregunta sobre la materia…" rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Enviar">➤</button>
+    </div>
+
+  </section>
+
+  <!-- ══════════════ HORARIO PANEL ══════════════ -->
+  <section class="panel" id="horario-panel">
+    <div>
+      <div class="panel-title">Planificación Cronológica</div>
+      <div class="panel-subtitle">Práctica Docente IV · Régimen Anual · Cursado Marzo–Noviembre</div>
+    </div>
+
+    <div class="cuatrimestre-block">
+      <div class="cuatrimestre-header c1">
+        <span class="cuatri-badge">1° Cuatrimestre</span>
+        <h3>Marzo – Junio</h3>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Marzo</div>
+        <div class="month-unit">
+          <span class="unit-pill u1">📘 Unidad 1</span>
+        </div>
+        <div class="month-unit">Pre-residencia: Concepciones y representaciones docentes, biografía escolar, diseño inicial, bitácora digital, laboratorios virtuales.</div>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Abril</div>
+        <div class="month-unit">
+          <span class="unit-pill u1">📘 Unidad 1</span>
+        </div>
+        <div class="month-unit">Diseño de propuestas de enseñanza en tecnologías, talleres de problematización, foros digitales, perspectiva de género.</div>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Mayo</div>
+        <div class="month-unit">
+          <span class="unit-pill u2">📗 Unidad 2</span>
+        </div>
+        <div class="month-unit">Residencia I – Inserción: Observación y ayudantías en contextos de diversidad socio-cultural. Observación mediada por herramientas digitales.</div>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Junio</div>
+        <div class="month-unit">
+          <span class="unit-pill u2">📗 Unidad 2</span>
+        </div>
+        <div class="month-unit">Organización institucional, inscripción del contexto comunitario, mentorías en línea, plataformas colaborativas.</div>
+      </div>
+    </div>
+
+    <div class="cuatrimestre-block">
+      <div class="cuatrimestre-header c2">
+        <span class="cuatri-badge">2° Cuatrimestre</span>
+        <h3>Agosto – Noviembre</h3>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Agosto</div>
+        <div class="month-unit">
+          <span class="unit-pill u2">📗 Unidad 2</span>
+        </div>
+        <div class="month-unit">Residencia I – Continuación: Planificación e implementación didáctica. TIC, robótica educativa, entornos digitales de aprendizaje.</div>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Septiembre</div>
+        <div class="month-unit">
+          <span class="unit-pill u2">📗 Unidad 2</span>
+        </div>
+        <div class="month-unit">Informes sobre estrategias de enseñanza y evaluación de resultados. Analíticas de aprendizaje para evaluar desempeño.</div>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Octubre</div>
+        <div class="month-unit">
+          <span class="unit-pill u3">📕 Unidad 3</span>
+        </div>
+        <div class="month-unit">Residencia II – Innovación: Proyectos pedagógico-didácticos, hackatones, robótica, recursos digitales interactivos, realidad aumentada y virtual.</div>
+      </div>
+
+      <div class="month-row">
+        <div class="month-label">Noviembre</div>
+        <div class="month-unit">
+          <span class="unit-pill u4">📓 Unidad 4</span>
+        </div>
+        <div class="month-unit">Pos-residencia: Evaluación integral, trabajo final integrador, portafolio digital docente, seminarios virtuales de cierre, ética digital.</div>
+      </div>
+    </div>
+
+    <div class="horario-bottom">
+      🗓️ <strong>Régimen:</strong> Cursado anual con dos cuatrimestres. El primero se centra en preparación e inserción inicial; el segundo en implementación avanzada, innovación interdisciplinaria y reflexión integradora con cierre académico.
+    </div>
+  </section>
+
+  <!-- ══════════════ EVALUACIÓN PANEL ══════════════ -->
+  <section class="panel" id="eval-panel">
+    <div>
+      <div class="panel-title">Evaluación y Acreditación</div>
+      <div class="panel-subtitle">Práctica Docente IV · Criterios, instrumentos y condiciones de aprobación</div>
+    </div>
+
+    <div class="eval-grid">
+
+      <div class="eval-card">
+        <div class="eval-card-header">
+          <div class="eval-icon" style="background:rgba(200,96,26,0.1)">📝</div>
+          <h3>Instrumentos de Evaluación</h3>
+        </div>
+        <ul>
+          <li>Bitácora digital reflexiva (portafolio en línea)</li>
+          <li>Planificaciones didácticas y secuencias</li>
+          <li>Informes de observación y ayudantías</li>
+          <li>Narrativas pedagógicas (diarios de ruta)</li>
+          <li>Producciones digitales y multimedia</li>
+          <li>Trabajo Final Integrador</li>
+          <li>Portafolio digital docente</li>
+        </ul>
+      </div>
+
+      <div class="eval-card">
+        <div class="eval-card-header">
+          <div class="eval-icon" style="background:rgba(45,106,79,0.1)">🔍</div>
+          <h3>Dimensiones Evaluadas</h3>
+        </div>
+        <ul>
+          <li>Reflexión crítica sobre la propia práctica</li>
+          <li>Capacidad de planificación e innovación didáctica</li>
+          <li>Uso pedagógico de tecnologías (TPACK)</li>
+          <li>Inserción y gestión en el aula</li>
+          <li>Construcción de identidad docente</li>
+          <li>Ciudadanía digital crítica</li>
+          <li>Ética profesional y justicia curricular</li>
+        </ul>
+      </div>
+
+      <div class="eval-card">
+        <div class="eval-card-header">
+          <div class="eval-icon" style="background:rgba(232,184,75,0.15)">📊</div>
+          <h3>Escala de Calificación</h3>
+        </div>
+        <table class="score-table">
+          <thead>
+            <tr>
+              <th>Nota</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>8 – 10</strong></td>
+              <td>Desempeño destacado</td>
+              <td><span class="badge-ap">Aprobado</span></td>
+            </tr>
+            <tr>
+              <td><strong>6 – 7</strong></td>
+              <td>Desempeño satisfactorio</td>
+              <td><span class="badge-ap">Aprobado</span></td>
+            </tr>
+            <tr>
+              <td><strong>4 – 5</strong></td>
+              <td>En proceso</td>
+              <td><span class="badge-rp">Recuperar</span></td>
+            </tr>
+            <tr>
+              <td><strong>1 – 3</strong></td>
+              <td>No alcanza los criterios</td>
+              <td><span class="badge-na">No aprobado</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="eval-card">
+        <div class="eval-card-header">
+          <div class="eval-icon" style="background:rgba(26,18,9,0.07)">🏁</div>
+          <h3>Momentos de Evaluación</h3>
+        </div>
+        <ul>
+          <li><strong>Diagnóstica:</strong> Inicio de la residencia (concepciones previas)</li>
+          <li><strong>Formativa:</strong> Durante el proceso (ateneos, mentorías, observaciones)</li>
+          <li><strong>Sumativa:</strong> Cierre de cada unidad y trabajo final integrador</li>
+          <li><strong>Autoevaluación:</strong> Mediante narrativas y portafolio digital</li>
+          <li><strong>Coevaluación:</strong> Entre pares y pareja pedagógica</li>
+        </ul>
+      </div>
+
+      <div class="eval-card criteria-full">
+        <div class="eval-card-header">
+          <div class="eval-icon" style="background:rgba(200,96,26,0.1)">🎯</div>
+          <h3>Criterios Específicos por Unidad</h3>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;">
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Unidad 1 · Pre-residencia</div>
+            <ul style="font-size:0.79rem;color:var(--muted);padding-left:14px;">
+              <li>Reflexión sobre la biografía escolar</li>
+              <li>Diseño de propuesta didáctica inicial</li>
+              <li>Inicio de bitácora digital</li>
+            </ul>
+            <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:100%;background:var(--accent);"></div></div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:#8a5f00;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Unidad 2 · Residencia I</div>
+            <ul style="font-size:0.79rem;color:var(--muted);padding-left:14px;">
+              <li>Observación e informes de inserción</li>
+              <li>Planificación e implementación situada</li>
+              <li>Participación en mentorías</li>
+            </ul>
+            <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:100%;background:#c8a000;"></div></div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--accent2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Unidad 3 · Residencia II</div>
+            <ul style="font-size:0.79rem;color:var(--muted);padding-left:14px;">
+              <li>Proyecto pedagógico-didáctico innovador</li>
+              <li>Producción de materiales digitales</li>
+              <li>Narrativa pedagógica de experiencia</li>
+            </ul>
+            <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:100%;background:var(--accent2);"></div></div>
+          </div>
+          <div>
+            <div style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--ink);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Unidad 4 · Pos-residencia</div>
+            <ul style="font-size:0.79rem;color:var(--muted);padding-left:14px;">
+              <li>Trabajo Final Integrador aprobado</li>
+              <li>Portafolio digital completo</li>
+              <li>Exposición en seminario de cierre</li>
+            </ul>
+            <div class="progress-bar" style="margin-top:8px;"><div class="progress-fill" style="width:100%;background:var(--ink);"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="aprobacion-banner">
+      <div class="aprobacion-banner-icon">✅</div>
+      <div>
+        <h3>Condiciones de Aprobación</h3>
+        <ul>
+          <li>Asistencia mínima del <strong>75%</strong> a los espacios formativos del Instituto y las Escuelas Asociadas.</li>
+          <li>Aprobación de <strong>todas las instancias parciales</strong> de cada unidad (bitácora, informes, planificaciones).</li>
+          <li>Aprobación del <strong>Trabajo Final Integrador</strong> con nota mínima de <strong>6 (seis)</strong>.</li>
+          <li>Presentación y aprobación del <strong>Portafolio Digital Docente</strong> como evidencia de competencias adquiridas.</li>
+          <li>Participación en el <strong>Seminario Virtual de Cierre</strong> con exposición pública del proyecto tecnológico.</li>
+          <li>La acreditación es consecuencia de un <strong>proceso integral</strong> de formación y no de una única instancia examinadora.</li>
+        </ul>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<footer>
+  Práctica Docente IV · Residencia del Profesorado de Educación Secundaria en Tecnologías · Res. N° 442/15
+</footer>
+
+<script>
+// ══════════════════════════════════════════════
+// CONFIGURACIÓN – reemplazá con tu API Key real
+// ══════════════════════════════════════════════
+const API_KEY = ""; // ← Pegá acá tu Anthropic API Key
+
+// ══════════════════════════════════════════════
+// BASE DE CONOCIMIENTO – Práctica Docente IV
+// ══════════════════════════════════════════════
+const SYSTEM_PROMPT = `Sos el asistente pedagógico de la cátedra "Práctica Docente IV: Residencia del Profesorado de Educación Secundaria en Tecnologías" (Res. N° 442/15).
+
+Tu función es responder preguntas sobre esta materia de manera clara, amigable y precisa. Usá el siguiente contenido como base de conocimiento:
+
+ESTRUCTURA DE LA MATERIA:
+La materia se organiza en 4 unidades progresivas:
+
+UNIDAD 1 – Pre-residencia: Concepciones y Diseño Inicial (Marzo–Abril)
+- Trabajo sobre concepciones, representaciones y miedos en torno a la práctica docente
+- Reconstrucción de la biografía escolar y análisis de representaciones sociales
+- Diseño de propuestas de enseñanza en tecnologías
+- Adecuación de propuestas a la complejidad áulica
+- Reconocimiento del contexto institucional y comunitario
+- Dispositivos innovadores: laboratorios virtuales de simulación didáctica, foros digitales, bitácora digital reflexiva como portafolio en línea
+- Actualización: enfoques de educación digital, alfabetización tecnológica, perspectiva de género
+
+UNIDAD 2 – Residencia I: Inserción y gestión de la práctica (Mayo–Septiembre)
+- Inserción gradual en la práctica docente en contextos de diversidad socio-cultural
+- Momentos: observación, ayudantías, planificación, implementación, reflexión
+- Organización y gestión institucional
+- Producción de informes sobre estrategias de enseñanza
+- Dispositivos: observación mediada por herramientas digitales, mentorías en línea con docentes de tecnologías, plataformas colaborativas, analíticas de aprendizaje
+- Actualización: robótica educativa, entornos digitales de aprendizaje
+
+UNIDAD 3 – Residencia II: Innovación y articulación interdisciplinaria (Octubre)
+- Diseño, implementación y evaluación de proyectos pedagógico-didácticos innovadores
+- Articulación con proyectos institucionales y comunitarios
+- Narrativas pedagógicas y construcción de identidad docente
+- Sistematización en ateneos y talleres integradores
+- Dispositivos: hackatones pedagógicos, talleres de robótica y programación, recursos digitales interactivos, realidad aumentada y virtual
+- Actualización: ciudadanía digital crítica, sostenibilidad tecnológica, pensamiento computacional
+
+UNIDAD 4 – Pos-residencia: Reflexión e integración (Noviembre)
+- Evaluación integral de la residencia
+- Dialéctica problemas–alternativas
+- Retos de la realidad multicultural y multilingüe
+- Memoria profesional y narrativas pedagógicas
+- Trabajo Final Integrador
+- Portafolio digital docente
+- Dispositivos: seminarios virtuales de cierre, narrativas audiovisuales, comunidades de práctica en línea, talleres de ética digital
+
+METODOLOGÍA (El Residente como Investigador de su propia Práctica):
+- Fundamento: Práctica Reflexiva y Aprendizaje Basado en la Experiencia
+- Proceso cíclico: acción-reflexión-acción
+- Tres ejes: 1) Dispositivos de Inserción y Trabajo de Campo (Cartografía Institucional, Ayudantías Colaborativas, Pareja Pedagógica); 2) Talleres de Sistematización y Ateneos Didácticos; 3) Competencias Tecnológicas y Ciudadanía Digital (enfoque TPACK)
+
+EVALUACIÓN:
+- Instrumentos: bitácora digital, planificaciones, informes, narrativas pedagógicas, producciones digitales, Trabajo Final Integrador, portafolio digital
+- Dimensiones: reflexión crítica, planificación e innovación, uso pedagógico de tecnologías (TPACK), gestión áulica, identidad docente, ciudadanía digital, ética profesional
+- Escala: 1–10. Aprobado con 6 o más
+- Momentos: diagnóstica, formativa, sumativa, autoevaluación, coevaluación
+- Condiciones de aprobación: 75% de asistencia, aprobación de todas las instancias parciales, Trabajo Final Integrador con nota mínima 6, portafolio digital completo, participación en seminario de cierre
+
+Respondé siempre en español, de forma concisa pero completa. Si la pregunta no está relacionada con esta materia, indicá amablemente que solo podés responder sobre Práctica Docente IV.`;
+
+// ══════════════════════════════════════════════
+// RESPUESTAS LOCALES (sin API Key)
+// ══════════════════════════════════════════════
+const LOCAL_RESPONSES = {
+  "unidades": `La materia tiene <strong>4 unidades</strong> progresivas:\n\n<ul><li><strong>Unidad 1 – Pre-residencia</strong> (Marzo–Abril): Concepciones, biografía escolar, diseño inicial</li><li><strong>Unidad 2 – Residencia I</strong> (Mayo–Septiembre): Inserción y gestión de la práctica</li><li><strong>Unidad 3 – Residencia II</strong> (Octubre): Innovación e interdisciplina</li><li><strong>Unidad 4 – Pos-residencia</strong> (Noviembre): Reflexión e integración</li></ul>`,
+  "pre-residencia": `<span class="tag">Unidad 1 · Marzo–Abril</span>\n\nEn la <strong>Pre-residencia</strong> los estudiantes trabajan sobre sus concepciones y miedos en torno a la docencia. Se reconstruye la <strong>biografía escolar</strong>, se analizan representaciones sociales y se diseñan las primeras propuestas de enseñanza en tecnologías.\n\n<strong>Dispositivos:</strong><ul><li>Laboratorios virtuales de simulación didáctica</li><li>Foros de discusión digitales</li><li>Bitácora digital reflexiva (portafolio en línea)</li></ul>`,
+  "dispositivos": `Los <strong>dispositivos innovadores</strong> incluyen:\n\n<ul><li>🖥️ Laboratorios virtuales de simulación didáctica</li><li>🤝 Mentorías en línea con docentes de tecnologías</li><li>⚙️ Plataformas colaborativas para co-diseñar propuestas</li><li>🤖 Talleres de robótica educativa y programación</li><li>🥽 Realidad aumentada y realidad virtual</li><li>💡 Hackatones pedagógicos</li><li>📹 Narrativas audiovisuales y videos reflexivos</li><li>🌐 Comunidades de práctica en línea</li></ul>`,
+  "evaluación": `<span class="tag">Evaluación · Práctica Docente IV</span>\n\nLa evaluación integra múltiples dimensiones:\n\n<ul><li>📋 Bitácora digital reflexiva y portafolio</li><li>📄 Planificaciones e informes de práctica</li><li>📖 Narrativas pedagógicas (diarios de ruta)</li><li>💻 Producciones digitales</li><li>🏁 Trabajo Final Integrador</li></ul>\n\n<strong>Escala:</strong> 1 a 10. Se aprueba con <strong>6 o más</strong>.`,
+  "aprobación": `<span class="tag">Condiciones de Aprobación</span>\n\nPara aprobar la materia necesitás:\n\n<ul><li>✅ Asistencia mínima del <strong>75%</strong></li><li>✅ Aprobar <strong>todas las instancias parciales</strong> de cada unidad</li><li>✅ Trabajo Final Integrador con nota mínima <strong>6 (seis)</strong></li><li>✅ <strong>Portafolio digital docente</strong> completo</li><li>✅ Participar en el <strong>Seminario Virtual de Cierre</strong></li></ul>`,
+  "tpack": `<span class="tag">Enfoque TPACK</span>\n\n<strong>TPACK</strong> significa <em>Conocimiento Tecnológico, Pedagógico y Disciplinar</em>. Es el enfoque que integra la tecnología no como un accesorio sino como un <strong>eje transversal</strong> de la enseñanza.\n\nCombina tres tipos de conocimiento:\n<ul><li>📚 <strong>Disciplinar:</strong> el contenido de tecnologías</li><li>🎓 <strong>Pedagógico:</strong> cómo se enseña</li><li>💻 <strong>Tecnológico:</strong> qué herramientas digitales usar y cómo</li></ul>`,
+};
+
+function getLocalResponse(text) {
+  const t = text.toLowerCase();
+  if (t.includes("unidad") || t.includes("unidades")) return LOCAL_RESPONSES["unidades"];
+  if (t.includes("pre-residencia") || t.includes("preresidencia") || t.includes("primera unidad")) return LOCAL_RESPONSES["pre-residencia"];
+  if (t.includes("dispositivo") || t.includes("innovador") || t.includes("robot") || t.includes("hackat")) return LOCAL_RESPONSES["dispositivos"];
+  if (t.includes("evaluaci") || t.includes("calificaci") || t.includes("nota")) return LOCAL_RESPONSES["evaluación"];
+  if (t.includes("aprobaci") || t.includes("aprobar") || t.includes("acredit")) return LOCAL_RESPONSES["aprobación"];
+  if (t.includes("tpack") || t.includes("tecnológico pedagógico") || t.includes("conocimiento tecnol")) return LOCAL_RESPONSES["tpack"];
+  return `Gracias por tu consulta. Esta es la <strong>Práctica Docente IV: Residencia</strong> del Profesorado en Tecnologías (Res. N° 442/15).\n\nPodés preguntarme sobre:\n<ul><li>Las 4 unidades de la materia</li><li>El horario cronológico</li><li>Los dispositivos pedagógicos</li><li>La evaluación y criterios de aprobación</li><li>La metodología TPACK</li></ul>\n\n💡 Para respuestas más completas y personalizadas, configurá tu API Key de Anthropic en el archivo.`;
+}
+
+// ══════════════════════════════════════════════
+// HISTORIAL DE CHAT
+// ══════════════════════════════════════════════
+let chatHistory = [];
+
+// ══════════════════════════════════════════════
+// FUNCIONES
+// ══════════════════════════════════════════════
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(name + '-panel').classList.add('active');
+  event.target.classList.add('active');
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function sendQuick(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+function addMessage(role, html) {
+  const area = document.getElementById('messages-area');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'bot' ? '🎓' : '👤';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.innerHTML = html;
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+  return bubble;
+}
+
+function addTyping() {
+  const area = document.getElementById('messages-area');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-msg';
+  div.innerHTML = `<div class="msg-avatar">🎓</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-msg');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+
+  addMessage('user', text.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+  chatHistory.push({ role: 'user', content: text });
+
+  addTyping();
+
+  try {
+    let reply;
+
+    if (API_KEY && API_KEY.length > 10) {
+      // ── Llamada real a la API de Anthropic ──
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: SYSTEM_PROMPT,
+          messages: chatHistory
+        })
+      });
+
+      if (!resp.ok) throw new Error("API error " + resp.status);
+      const data = await resp.json();
+      reply = data.content[0].text;
+      chatHistory.push({ role: 'assistant', content: reply });
+      // Convertir markdown básico a HTML
+      reply = reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/((<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+    } else {
+      // ── Respuestas locales ──
+      await new Promise(r => setTimeout(r, 900));
+      reply = getLocalResponse(text);
+      chatHistory.push({ role: 'assistant', content: reply });
+    }
+
+    removeTyping();
+    addMessage('bot', reply);
+
+  } catch (err) {
+    removeTyping();
+    addMessage('bot', `<span style="color:var(--accent)">⚠️ Error al conectar con la API.</span> Verificá tu API Key o tu conexión a internet. <br><br>Mientras tanto, podés consultar el <strong>Horario</strong> y la sección de <strong>Evaluación</strong> usando las pestañas de arriba.`);
+    console.error(err);
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('chat-input').focus();
+}
+</script>
+</body>
+</html>
